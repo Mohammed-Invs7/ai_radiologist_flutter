@@ -1,16 +1,16 @@
-import 'package:ai_radiologist_flutter/business_logic/cubit/auth_cubit.dart';
-import 'package:ai_radiologist_flutter/business_logic/repositories/auth_repository.dart';
+import 'package:ai_radiologist_flutter/business_logic/cubit/cubits.dart';
+import 'package:ai_radiologist_flutter/business_logic/repositories/repositories.dart';
 import 'package:flutter/material.dart';
 import 'package:ai_radiologist_flutter/presentation/screens/screens.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'constants/settings.dart';
-
 
 class AppRouter {
   late AuthCubit authCubit;
+  late ReportCubit reportCubit;
   AppRouter(){
     authCubit = AuthCubit(AuthRepository());
+    reportCubit = ReportCubit(ReportRepository());
   }
 
    Route? generateRoute(RouteSettings settings ) {
@@ -38,13 +38,22 @@ class AppRouter {
 
       case '/home_screen':
         return MaterialPageRoute(
-            builder: (context) => HomeScreen());
-        //   builder: (_) => BlocProvider<AuthCubit>.value(
-        //     value: authCubit,
-        //     child: HomeScreen(),
-        //   ),
-        // );
+            // builder: (context) => HomeScreen());
+          builder: (_) => BlocProvider<ReportCubit>.value(
+            value: reportCubit,
+            child: HomeScreen(),
+          ),
+        );
 
+      case '/report_detail':
+      // تأكد من تمرير reportId من خلال arguments.
+        final reportId = settings.arguments as int;
+        return MaterialPageRoute(
+          builder: (context) => BlocProvider<ReportCubit>.value(
+            value: reportCubit,
+            child: ReportDetailScreen(reportId: reportId),
+          ),
+        );
 
 
 

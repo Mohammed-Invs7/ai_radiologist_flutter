@@ -1,3 +1,4 @@
+import 'package:ai_radiologist_flutter/data/models/models.dart';
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'dart:io';
@@ -19,4 +20,57 @@ class ReportCubit extends Cubit<ReportState> {
       emit(ReportError(error.toString()));
     }
   }
+
+  Future<void> fetchReports() async {
+    emit(ReportLoading());
+    try {
+      final reports = await reportRepository.fetchReports();
+      emit(ReportLoaded(reports));
+    } catch (e) {
+      emit(ReportError(e.toString()));
+    }
+  }
+
+
+  Future<void> fetchReportDetail(int id) async {
+    emit(ReportDetailLoading());
+    try {
+      final reportDetail = await reportRepository.fetchReportDetail(id);
+      emit(ReportDetailLoaded(reportDetail));
+    } catch (e) {
+      emit(ReportDetailError(e.toString()));
+    }
+  }
+
+  Future<void> updateReportTitle(int id, String newTitle) async {
+    emit(ReportDetailLoading());
+    try {
+      final updatedReport = await reportRepository.updateReportTitle(id, newTitle);
+      emit(ReportDetailLoaded(updatedReport));
+    } catch (e) {
+      emit(ReportDetailError(e.toString()));
+    }
+  }
+
+  Future<void> deleteReport(int id) async {
+    emit(ReportDetailLoading());
+    try {
+      await reportRepository.deleteReport(id);
+      emit(ReportDeleted());
+    } catch (e) {
+      emit(ReportDetailError(e.toString()));
+    }
+  }
+
+
+  Future<String?> downloadPdf(int id) async {
+    emit(ReportPdfDownloading());
+    try {
+      final filePath = await reportRepository.downloadReportPdf(id);
+      emit(ReportPdfDownloaded(filePath));
+    } catch (e) {
+      emit(ReportPdfDownloadError(e.toString()));
+    }
+  }
+
 }

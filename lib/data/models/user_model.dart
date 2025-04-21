@@ -48,4 +48,23 @@ class User {
       'profile_image': profileImage,
     };
   }
+
+  User copyWith({
+    String? firstName,
+    String? lastName,
+    String? gender,
+    String? profileImage,
+  }) {
+    return User(
+      pk: pk,
+      email: email,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      gender: gender ?? this.gender,
+      age: age,
+      dateOfBirth: dateOfBirth,
+      joinDate: joinDate,
+      profileImage: profileImage ?? this.profileImage,
+    );
+  }
 }

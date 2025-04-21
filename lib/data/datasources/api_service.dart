@@ -27,10 +27,15 @@ class ApiService {
       final refreshToken = await AuthStorage.getRefreshToken();
       if (refreshToken == null) return null;
       try {
-        final response = await dio.post('/api/v1/auth/token/refresh/', data: {'refresh': refreshToken});
-        final newAccessToken = response.data['access'];
-        await AuthStorage.saveTokens(newAccessToken, refreshToken);
-        return newAccessToken;
+        final response = await dio.post('/auth/token/refresh/', data: {'refresh': refreshToken});
+        if (response.statusCode == 200) {
+          final newAccessToken = response.data['access'];
+          await AuthStorage.saveTokens(newAccessToken, refreshToken);
+          return newAccessToken;
+        }
+        if (response.statusCode == 401) {
+          return null;
+        }
       } catch (e) {
         return null;
       }

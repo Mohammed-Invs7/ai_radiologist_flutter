@@ -6,3 +6,5 @@ export 'user_base_screen.dart';
 export 'user_reports_screen.dart';
 export 'splash_screen.dart';
 export 'create_report_screen.dart';
+export 'user_report_details_screen.dart';
+export 'profile_screen.dart';

@@ -5,7 +5,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'app_router.dart';
 
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() {
   runApp(
     BlocProvider<AuthCubit>(
@@ -31,6 +33,7 @@ class AiRadiologistApp extends StatelessWidget {
     child:MaterialApp(
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
+      navigatorObservers: [routeObserver],
       onGenerateRoute: appRouter.generateRoute,
       // theme: ThemeData(
       //   colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),

@@ -1,0 +1,79 @@
+import 'package:ai_radiologist_flutter/data/models/models.dart';
+import 'package:dio/dio.dart';
+import 'package:ai_radiologist_flutter/data/datasources/api_service.dart';
+
+class UserRepository {
+  final Dio dio = ApiService().dio; // نفترض أنّ ApiService معدّ بشكل صحيح
+
+  // جلب بيانات المستخدم
+  Future<User> fetchUser() async {
+    try {
+      Response response = await dio.get('/auth/user/');
+      if (response.statusCode == 200) {
+        return User.fromJson(response.data);
+      } else {
+        throw Exception('Failed to fetch user. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching user: $e');
+    }
+  }
+
+  // تعديل الاسم (first_name و last_name)
+  Future<User> updateUserName(String firstName, String lastName) async {
+    try {
+      Response response = await dio.patch(
+        '/auth/user/',
+        data: {
+          'first_name': firstName,
+          'last_name': lastName,
+        },
+      );
+      if (response.statusCode == 200) {
+        return User.fromJson(response.data);
+      } else {
+        throw Exception('Failed to update user name. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error updating user name: $e');
+    }
+  }
+
+  // تعديل الجنس
+  Future<User> updateUserGender(String gender) async {
+    try {
+      Response response = await dio.patch(
+        '/auth/user/',
+        data: {
+          'gender': gender,
+        },
+      );
+      if (response.statusCode == 200) {
+        return User.fromJson(response.data);
+      } else {
+        throw Exception('Failed to update user gender. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error updating user gender: $e');
+    }
+  }
+
+  // تعديل صورة الملف الشخصي
+  Future<User> updateUserProfileImage(String profileImage) async {
+    try {
+      Response response = await dio.patch(
+        '/auth/user/',
+        data: {
+          'profile_image': profileImage,
+        },
+      );
+      if (response.statusCode == 200) {
+        return User.fromJson(response.data);
+      } else {
+        throw Exception('Failed to update profile image. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error updating profile image: $e');
+    }
+  }
+}

@@ -1,10 +1,14 @@
+import 'package:ai_radiologist_flutter/business_logic/cubit/cubits.dart';
 import 'package:ai_radiologist_flutter/business_logic/cubit/report_cubit.dart';
-import 'package:ai_radiologist_flutter/business_logic/repositories/report_repository.dart';
+import 'package:ai_radiologist_flutter/business_logic/repositories/repositories.dart';
 import 'package:ai_radiologist_flutter/presentation/screens/screens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ai_radiologist_flutter/constants/my_colors.dart';
 import 'package:ai_radiologist_flutter/business_logic/cubit/auth_cubit.dart';
+
+
+// final reportCubit = ReportCubit(ReportRepository());
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -13,19 +17,29 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
+
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 2;
   late Widget _currentScreen;
 
+
   // قائمة الشاشات للتنقل (لا يوجد شاشة خاصة للـ Logout، فالزر يقوم بتسجيل الخروج)
   final List<Widget> _screens = [
-    const HomeContentScreen(),
-    const SearchScreen(),
-    BlocProvider(
-      create: (context) => ReportCubit(ReportRepository()),
-      child: const CreateReportScreen(),
+    BlocProvider<ProfileCubit>.value(
+      value: ProfileCubit(UserRepository()),
+      child: const ProfileScreen(),
     ),
-    const ProfileScreen(),
+    const ReportsScreen(),
+    const CreateReportScreen(),
+    // BlocProvider<ReportCubit>.value(
+    //   value: reportCubit,
+    //   child: const ReportsScreen(),
+    // ),
+    // BlocProvider<ReportCubit>.value(
+    //   value: reportCubit,
+    //   child: const CreateReportScreen(),
+    // ),
+    const HomeContentScreen(),
   ];
 
   @override
@@ -57,11 +71,12 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: _currentScreen,
       bottomNavigationBar: Container(
+        height: 80,
         decoration: BoxDecoration(
           border: Border(
             top: BorderSide(
               color: MyColors.mainColor,
-              width: 0.7, // يمكنك تعديل السماكة حسب الحاجة
+              width: 1.4, // يمكنك تعديل السماكة حسب الحاجة
             ),
           ),
         ),
@@ -73,14 +88,14 @@ class _HomeScreenState extends State<HomeScreen> {
           onTap: _onItemTapped,
           items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined, color: MyColors.mainColor),
-              activeIcon: Icon(Icons.home, color: MyColors.mainColor),
-              label: 'Home',
+              icon: Icon(Icons.person_outline, color: MyColors.mainColor),
+              activeIcon: Icon(Icons.person, color: MyColors.mainColor),
+              label: 'Profile',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.search_outlined, color: MyColors.mainColor),
-              activeIcon: Icon(Icons.search, color: MyColors.mainColor),
-              label: 'Search',
+              icon: Icon(Icons.article_outlined, color: MyColors.mainColor),
+              activeIcon: Icon(Icons.article, color: MyColors.mainColor),
+              label: 'Reports',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.add_circle_outline, color: MyColors.mainColor),
@@ -88,9 +103,9 @@ class _HomeScreenState extends State<HomeScreen> {
               label: 'Create Report',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline, color: MyColors.mainColor),
-              activeIcon: Icon(Icons.person, color: MyColors.mainColor),
-              label: 'Profile',
+              icon: Icon(Icons.settings_outlined, color: MyColors.mainColor),
+              activeIcon: Icon(Icons.settings, color: MyColors.mainColor),
+              label: 'settings',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.logout, color: MyColors.mainColor),
@@ -109,10 +124,16 @@ class HomeContentScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        'Home Screen',
-        style: TextStyle(fontSize: 24, color: MyColors.mainColor),
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.settings, color: MyColors.mainColor,size: 70,),
+          Text(
+            'Coming soon...',
+            style: TextStyle(fontSize: 24, color: MyColors.mainColor),
+          ),
+        ],
       ),
     );
   }
@@ -149,8 +170,8 @@ class SearchScreen extends StatelessWidget {
 // }
 
 // شاشة الملف الشخصي
-class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+class ProfileScreen1 extends StatelessWidget {
+  const ProfileScreen1({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
