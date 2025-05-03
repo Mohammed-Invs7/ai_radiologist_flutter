@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:ai_radiologist_flutter/business_logic/repositories/repositories.dart';
 import 'package:ai_radiologist_flutter/data/models/models.dart';
 import 'package:bloc/bloc.dart';
@@ -40,10 +42,10 @@ class ProfileCubit extends Cubit<ProfileState> {
     }
   }
 
-  Future<void> updateUserProfileImage(String profileImage) async {
+  Future<void> updateUserProfileImage(File imageFile) async {
     emit(ProfileLoading());
     try {
-      final user = await userRepository.updateUserProfileImage(profileImage);
+      final user = await userRepository.updateUserProfileImage(imageFile);
       emit(ProfileLoaded(user));
     } catch (e) {
       emit(ProfileError(e.toString()));

@@ -2,7 +2,6 @@ import 'package:ai_radiologist_flutter/data/datasources/api_service.dart';
 import 'package:ai_radiologist_flutter/data/models/models.dart';
 import 'package:dio/dio.dart';
 import 'dart:io';
-import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -10,11 +9,13 @@ class ReportRepository {
 
   ReportRepository();
 
-  Future<String> createReport(File imageFile) async {
+  Future<String> createReport({required File imageFile, required int modalityId, required int regionId,}) async {
     try {
 
       String fileName = imageFile.path.split('/').last;
       FormData formData = FormData.fromMap({
+        'radio_modality': modalityId,
+        'body_ana': regionId,
         "image_path": await MultipartFile.fromFile(imageFile.path, filename: fileName),
       });
 
@@ -133,6 +134,17 @@ class ReportRepository {
       }
     } catch (e) {
       throw Exception('Error downloading PDF: $e');
+    }
+  }
+
+  Future<List<ReportOption>> fetchReportOptions() async {
+    final resp = await ApiService().dio.get('/user/reports/options/');
+    if (resp.statusCode == 200) {
+      return (resp.data as List)
+          .map((e) => ReportOption.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } else {
+      throw Exception('Failed to load options');
     }
   }
 

@@ -8,13 +8,18 @@ part 'report_state.dart';
 
 class ReportCubit extends Cubit<ReportState> {
   final ReportRepository reportRepository;
+  List<ReportOption> _options = [];
 
   ReportCubit(this.reportRepository) : super(ReportInitial());
 
-  Future<void> createReport(File imageFile) async {
+  Future<void> createReport(File imageFile, {required int modalityId, required int regionId,}) async {
     emit(ReportUploading());
     try {
-      final report = await reportRepository.createReport(imageFile);
+      final report = await reportRepository.createReport(
+        imageFile: imageFile,
+        modalityId: modalityId,
+        regionId: regionId,
+      );
       emit(ReportSuccess(report));
     } catch (error) {
       emit(ReportError(error.toString()));
@@ -72,5 +77,17 @@ class ReportCubit extends Cubit<ReportState> {
       emit(ReportPdfDownloadError(e.toString()));
     }
   }
+
+  Future<void> fetchReportOptions() async {
+    emit(ReportOptionsLoading());
+    try {
+      _options = await reportRepository.fetchReportOptions();
+      emit(ReportOptionsLoaded(_options));
+    } catch (e) {
+      emit(ReportOptionsError(e.toString()));
+    }
+  }
+
+  List<ReportOption> get options => _options;
 
 }

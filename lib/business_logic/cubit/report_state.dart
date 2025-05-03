@@ -51,3 +51,12 @@ class ReportPdfDownloadError extends ReportState {
   ReportPdfDownloadError(this.message);
 }
 
+class ReportOptionsLoading extends ReportState {}
+class ReportOptionsLoaded extends ReportState {
+  final List<ReportOption> options;
+  ReportOptionsLoaded(this.options);
+}
+class ReportOptionsError extends ReportState {
+  final String message;
+  ReportOptionsError(this.message);
+}

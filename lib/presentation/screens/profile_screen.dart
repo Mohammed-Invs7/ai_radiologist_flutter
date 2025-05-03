@@ -3,7 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ai_radiologist_flutter/constants/my_colors.dart';
 import 'package:ai_radiologist_flutter/business_logic/cubit/profile_cubit.dart';
 import 'package:intl/intl.dart';
-
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -13,6 +14,16 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  final ImagePicker _picker = ImagePicker();
+  File? _selectedImage;
+
+  Future<void> _pickImage(ImageSource src) async {
+    final picked = await _picker.pickImage(source: src, imageQuality: 85);
+    if (picked != null) {
+      setState(() => _selectedImage = File(picked.path));
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -75,13 +86,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             return const Center(child: CircularProgressIndicator());
           } else if (state is ProfileLoaded) {
             final user = state.user;
-            // تجاهل user_type
+            final currentImageUrl = user.profileImage;
             return SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // صورة الملف الشخصي في الأعلى
                   Center(
                     child: CircleAvatar(
                       radius: 60,
@@ -89,7 +99,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // عرض معلومات المستخدم بشكل أنيق
                   Card(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -100,62 +109,87 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Name: ${user.firstName} ${user.lastName}',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: MyColors.mainColor,
-                              fontWeight: FontWeight.bold,
+                          RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'Name: ',
+                                  style: TextStyle(fontSize: 20, color: MyColors.mainColor, fontWeight: FontWeight.bold),
+                                ),
+                                TextSpan(
+                                  text: '${user.firstName} ${user.lastName}',
+                                  style: TextStyle(fontSize: 20, color: MyColors.blackColor, fontWeight: FontWeight.bold),
+                                ),
+                              ],
                             ),
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            'Email: ${user.email}',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: MyColors.mainColor,
+                          RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'Email: ',
+                                  style: TextStyle(fontSize: 18, color: MyColors.mainColor),
+                                ),
+                                TextSpan(
+                                  text: user.email!,
+                                  style: TextStyle(fontSize: 18, color: MyColors.blackColor),
+                                ),
+                              ],
                             ),
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            'Age: ${user.age}',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: MyColors.mainColor,
+                          RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'Age: ',
+                                  style: TextStyle(fontSize: 18, color: MyColors.mainColor),
+                                ),
+                                TextSpan(
+                                  text: "${user.age.toString()} years old",
+                                  style: TextStyle(fontSize: 18, color: MyColors.blackColor),
+                                ),
+                              ],
                             ),
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            'Date of Birth: ${user.dateOfBirth}',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: MyColors.mainColor,
+                          RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'Date of Birth: ',
+                                  style: TextStyle(fontSize: 18, color: MyColors.mainColor),
+                                ),
+                                TextSpan(
+                                  text: user.dateOfBirth!,
+                                  style: TextStyle(fontSize: 18, color: MyColors.blackColor),
+                                ),
+                              ],
                             ),
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            'Gender: ${user.gender}',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: MyColors.mainColor,
+                          RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'Gender: ',
+                                  style: TextStyle(fontSize: 18, color: MyColors.mainColor),
+                                ),
+                                TextSpan(
+                                  text: user.gender == 'M'? 'Male': 'Female',
+                                  style: TextStyle(fontSize: 18, color: MyColors.blackColor),
+                                ),
+                              ],
                             ),
                           ),
-                          // const SizedBox(height: 8),
-                          // Text(
-                          //   'Join Date: ${DateFormat('yyyy-MM-dd').format(user.joinDate)}',
-                          //   style: TextStyle(
-                          //     fontSize: 14,
-                          //     color: MyColors.mainColor,
-                          //   ),
-                          // ),
                         ],
                       ),
                     ),
                   ),
 
                   const SizedBox(height: 16),
-                  // مجموعة بطاقات الخيارات للتعديل
-                  // 1. تعديل الاسم
+                  // edit name:
                   Card(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -193,7 +227,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  // 2. تعديل الجنس
+                  // edit gender
                   Card(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -203,7 +237,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       leading: Icon(Icons.transgender_outlined, color: MyColors.mainColor),
                       title: const Text('Edit Gender'),
                       onTap: () {
-                        // عرض Dialog لتحديد الجنس
                         _showEditDialog(
                           title: 'Edit Gender',
                           content: Column(
@@ -239,7 +272,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  // 3. تعديل صورة الملف الشخصي
+                  // edit profile image
                   Card(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -249,15 +282,91 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       leading: Icon(Icons.image_outlined, color: MyColors.mainColor),
                       title: const Text('Edit Profile Image'),
                       onTap: () {
-                        // هنا يمكن استخدام ImagePicker لتحديد صورة جديدة
-                        // ثم تحديثها باستخدام ProfileCubit
-                        _showEditDialog(
-                          title: 'Edit Profile Image',
-                          content: const Text('Implement image picker to choose new profile image.'),
-                          onConfirm: () {
-                            // مثال: إرسال رابط جديد للصورة
-                            context.read<ProfileCubit>().updateUserProfileImage('new_profile_image_url');
-                          },
+                        final picker = ImagePicker();
+                        File? dialogImage = _selectedImage;
+                        // خزن السياق الأصلي بعيداً عن الدايلوگ
+                        final parentContext = context;
+
+                        showDialog(
+                          context: parentContext,
+                          builder: (_) => BlocProvider.value(
+                            value: parentContext.read<ProfileCubit>(),
+                            child: StatefulBuilder(
+                              builder: (dialogContext, setStateDialog) {
+                                return AlertDialog(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  title: Text('Edit Profile Image', style: TextStyle(color: MyColors.mainColor)),
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 50,
+                                        backgroundImage: dialogImage != null
+                                            ? FileImage(dialogImage!)
+                                            : NetworkImage(
+                                            currentImageUrl
+                                        ) as ImageProvider,
+                                      ),
+                                      const SizedBox(height: 12),
+                                      ElevatedButton.icon(
+                                        onPressed: () async {
+                                          final picked = await picker.pickImage(
+                                            source: ImageSource.gallery,
+                                            imageQuality: 85,
+                                          );
+                                          if (picked != null) {
+                                            setStateDialog(() => dialogImage = File(picked.path));
+                                            setState(() => _selectedImage = File(picked.path));
+                                          }
+                                        },
+                                        icon: Icon(Icons.photo_library, color: MyColors.whiteColor),
+                                        label: const Text('Gallery', style: TextStyle(color: MyColors.whiteColor)),
+                                        style: ElevatedButton.styleFrom(backgroundColor: MyColors.mainColor),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      ElevatedButton.icon(
+                                        onPressed: () async {
+                                          final picked = await picker.pickImage(
+                                            source: ImageSource.camera,
+                                            imageQuality: 85,
+                                          );
+                                          if (picked != null) {
+                                            setStateDialog(() => dialogImage = File(picked.path));
+                                            setState(() => _selectedImage = File(picked.path));
+                                          }
+                                        },
+                                        icon: Icon(Icons.camera_alt, color: MyColors.whiteColor),
+                                        label: const Text('Camera', style: TextStyle(color: MyColors.whiteColor)),
+                                        style: ElevatedButton.styleFrom(backgroundColor: MyColors.mainColor),
+                                      ),
+                                    ],
+                                  ),
+                                  actionsAlignment: MainAxisAlignment.center,
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.of(dialogContext).pop(),
+                                      child: Text('Cancel', style: TextStyle(color: MyColors.mainColor)),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        if (_selectedImage != null) {
+                                          dialogContext.read<ProfileCubit>().updateUserProfileImage(_selectedImage!);
+                                          Navigator.of(dialogContext).pop();
+                                        } else {
+                                          ScaffoldMessenger.of(parentContext).showSnackBar(
+                                            const SnackBar(content: Text('Please pick an image first')),
+                                          );
+                                        }
+                                      },
+                                      child: Text('Confirm', style: TextStyle(color: MyColors.mainColor)),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
                         );
                       },
                     ),

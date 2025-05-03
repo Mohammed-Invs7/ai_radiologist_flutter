@@ -1,11 +1,13 @@
+import 'dart:io';
+
 import 'package:ai_radiologist_flutter/data/models/models.dart';
 import 'package:dio/dio.dart';
 import 'package:ai_radiologist_flutter/data/datasources/api_service.dart';
 
 class UserRepository {
-  final Dio dio = ApiService().dio; // نفترض أنّ ApiService معدّ بشكل صحيح
+  final Dio dio = ApiService().dio;
 
-  // جلب بيانات المستخدم
+
   Future<User> fetchUser() async {
     try {
       Response response = await dio.get('/auth/user/');
@@ -19,7 +21,7 @@ class UserRepository {
     }
   }
 
-  // تعديل الاسم (first_name و last_name)
+
   Future<User> updateUserName(String firstName, String lastName) async {
     try {
       Response response = await dio.patch(
@@ -39,7 +41,7 @@ class UserRepository {
     }
   }
 
-  // تعديل الجنس
+  // edit gender
   Future<User> updateUserGender(String gender) async {
     try {
       Response response = await dio.patch(
@@ -58,21 +60,31 @@ class UserRepository {
     }
   }
 
-  // تعديل صورة الملف الشخصي
-  Future<User> updateUserProfileImage(String profileImage) async {
+  // edit profile image
+  Future<User> updateUserProfileImage(File imageFile) async {
     try {
-      Response response = await dio.patch(
-        '/auth/user/',
-        data: {
-          'profile_image': profileImage,
-        },
+      final fileName = imageFile.path
+          .split('/')
+          .last;
+      final formData = FormData.fromMap({
+        'profile_image': await MultipartFile.fromFile(
+            imageFile.path, filename: fileName),
+      });
+
+      final response = await dio.patch(
+          '/auth/user/',
+          data: formData,
+          options: Options(headers: {'Content-Type': 'multipart/form-data'})
       );
+
       if (response.statusCode == 200) {
         return User.fromJson(response.data);
       } else {
-        throw Exception('Failed to update profile image. Status code: ${response.statusCode}');
+        throw Exception('Failed to update profile image. Status code: ${response
+            .statusCode}');
       }
-    } catch (e) {
+    }
+    catch (e) {
       throw Exception('Error updating profile image: $e');
     }
   }

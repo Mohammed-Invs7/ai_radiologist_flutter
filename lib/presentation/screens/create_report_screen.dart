@@ -16,6 +16,8 @@ class CreateReportScreen extends StatefulWidget {
 class _ReportScreenState extends State<CreateReportScreen> {
   File? _selectedImage;
   final ImagePicker _picker = ImagePicker();
+  int? _selectedModalityId;
+  int? _selectedRegionId;
 
   Future<void> _pickImageFromGallery() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
@@ -36,7 +38,14 @@ class _ReportScreenState extends State<CreateReportScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    context.read<ReportCubit>().fetchReportOptions();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final cubit = context.read<ReportCubit>();
     return Scaffold(
       backgroundColor: MyColors.whiteColor,
       appBar: AppBar(
@@ -50,7 +59,7 @@ class _ReportScreenState extends State<CreateReportScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Preview image container
+              // image container
               Container(
                 height: 200,
                 width: double.infinity,
@@ -68,6 +77,90 @@ class _ReportScreenState extends State<CreateReportScreen> {
                 ),
               ),
               const SizedBox(height: 10),
+
+              // Modality Dropdown
+              BlocBuilder<ReportCubit, ReportState>(
+                builder: (context, state) {
+                  if (state is ReportOptionsLoading) {
+                    return const CircularProgressIndicator();
+                  }
+                  if (state is ReportOptionsLoaded) {
+                    return DropdownButtonFormField<int>(
+                      decoration: InputDecoration(
+                        labelText: 'Modality',
+                        labelStyle: TextStyle(color: MyColors.mainColor, fontSize: 16),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide(color: MyColors.mainColor),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide(color: MyColors.thirdColor, width: 2),
+                        ),
+                        filled: true,
+                        fillColor: MyColors.whiteColor,
+                      ),
+                      dropdownColor: MyColors.whiteColor,
+                      iconEnabledColor: MyColors.mainColor,
+                      value: _selectedModalityId,
+                      items: state.options.map((opt) {
+                        return DropdownMenuItem(
+                          value: opt.modalityId,
+                          child: Text(opt.modalityName, style: TextStyle(color: MyColors.mainColor)),
+                        );
+                      }).toList(),
+                      onChanged: (id) {
+                        setState(() {
+                          _selectedModalityId = id;
+                          _selectedRegionId = null;
+                        });
+                      },
+                    );
+                  }
+                  if (state is ReportOptionsError) {
+                    return Text('Error: ${state.message}', style: TextStyle(color: Colors.red));
+                  }
+                  return Container();
+                },
+              ),
+
+              const SizedBox(height: 12),
+
+              // Region Dropdown
+              if (_selectedModalityId != null)
+                DropdownButtonFormField<int>(
+                  decoration: InputDecoration(
+                    labelText: 'Body Region',
+                    labelStyle: TextStyle(color: MyColors.mainColor, fontSize: 16),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide(color: MyColors.mainColor),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide(color: MyColors.thirdColor, width: 2),
+                    ),
+                    filled: true,
+                    fillColor: MyColors.whiteColor,
+                  ),
+                  dropdownColor: MyColors.whiteColor,
+                  iconEnabledColor: MyColors.mainColor,
+                  value: _selectedRegionId,
+                  items: cubit.options
+                      .firstWhere((option) => option.modalityId == _selectedModalityId)
+                      .regions
+                      .map((region) => DropdownMenuItem(
+                    value: region.id,
+                    child: Text(region.name, style: TextStyle(color: MyColors.mainColor)),
+                  ))
+                      .toList(),
+                  onChanged: (id) {
+                    setState(() => _selectedRegionId = id);
+                  },
+                ),
+
+              const SizedBox(height: 20),
+
               // Buttons for gallery and camera
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -80,7 +173,7 @@ class _ReportScreenState extends State<CreateReportScreen> {
                       backgroundColor: MyColors.whiteColor,
                       side: BorderSide(
                         color: MyColors.mainColor,
-                        width: 2, // يمكنك تعديل السماكة حسب الحاجة
+                        width: 2,
                       ),
                     ),
                   ),
@@ -93,11 +186,8 @@ class _ReportScreenState extends State<CreateReportScreen> {
                       backgroundColor: MyColors.mainColor,
                       side: BorderSide(
                         color: MyColors.whiteColor,
-                        width: 2, // يمكنك تعديل السماكة حسب الحاجة
+                        width: 2,
                       ),
-                      // shape: RoundedRectangleBorder(
-                      //   borderRadius: BorderRadius.circular(10),
-                      // ),
                     ),
                   ),
                 ],
@@ -105,9 +195,15 @@ class _ReportScreenState extends State<CreateReportScreen> {
               const SizedBox(height: 20),
               // Send button
               ElevatedButton(
-                onPressed: _selectedImage != null
+                onPressed: _selectedImage != null &&
+                    _selectedModalityId != null &&
+                    _selectedRegionId != null
                     ? () {
-                  context.read<ReportCubit>().createReport(_selectedImage!);
+                  context.read<ReportCubit>().createReport(
+                    _selectedImage!,
+                    modalityId: _selectedModalityId!,
+                    regionId: _selectedRegionId!,
+                  );
                 }
                     : null,
                 child: const Text("Send"),

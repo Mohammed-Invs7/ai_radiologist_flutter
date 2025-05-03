@@ -17,13 +17,11 @@ class ReportDetailScreen extends StatefulWidget {
 
 class _ReportDetailScreenState extends State<ReportDetailScreen> with RouteAware {
   final TextEditingController _titleController = TextEditingController();
-  // متغير لتخزين التفاصيل (الكاش)
   var _cachedReport;
 
   @override
   void initState() {
     super.initState();
-    // جلب البيانات أول مرة
     context.read<ReportCubit>().fetchReportDetail(widget.reportId);
   }
 
@@ -40,11 +38,9 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> with RouteAware
     super.dispose();
   }
 
-  // عند الرجوع من شاشة خارج التطبيق (مثلاً من ملف PDF)
+
   @override
   void didPopNext() {
-    // يمكنك تحديث البيانات إذا رغبت؛ أو تركها كالكاش
-    // إذا رغبت في تحديث الكاش كل مرة ترجع فيها الصفحة، استخدم:
     context.read<ReportCubit>().fetchReportDetail(widget.reportId);
   }
 
@@ -136,7 +132,6 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> with RouteAware
           }
         },
         builder: (context, state) {
-          // إذا لم يكن الكاش موجودًا، نعتمد على الحالة الحالية
           if (state is ReportDetailLoading && _cachedReport == null) {
             return const Center(child: CircularProgressIndicator());
           } else if (_cachedReport != null) {
@@ -147,7 +142,6 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> with RouteAware
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // الصورة في الأعلى
                   Container(
                     height: 250,
                     decoration: BoxDecoration(
@@ -159,7 +153,6 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> with RouteAware
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // تفاصيل التقرير داخل Card
                   Card(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -174,7 +167,7 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> with RouteAware
                           TextField(
                             controller: _titleController,
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 20,
                               color: MyColors.mainColor,
                               fontWeight: FontWeight.bold,
                             ),
@@ -184,33 +177,72 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> with RouteAware
                             ),
                             onSubmitted: (newTitle) {
                               context.read<ReportCubit>().updateReportTitle(report.id, newTitle);
-                              // تحديث الكاش
                               setState(() {
                               });
                             },
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            report.radiologyModality,
-                            style: TextStyle(fontSize: 16, color: MyColors.mainColor),
+                          RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'Modality: ',
+                                  style: TextStyle(fontSize: 17, color: MyColors.mainColor),
+                                ),
+                                TextSpan(
+                                  text: report.radiologyModality,
+                                  style: TextStyle(fontSize: 17, color: MyColors.blackColor),
+                                ),
+                              ],
+                            ),
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            report.bodyAnatomicalRegion,
-                            style: TextStyle(fontSize: 16, color: MyColors.mainColor),
+                          RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'Region: ',
+                                  style: TextStyle(fontSize: 17, color: MyColors.mainColor),
+                                ),
+                                TextSpan(
+                                  text: report.bodyAnatomicalRegion,
+                                  style: TextStyle(fontSize: 17, color: MyColors.blackColor),
+                                ),
+                              ],
+                            ),
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            formattedDate,
-                            style: TextStyle(fontSize: 12, color: MyColors.mainColor),
+                          RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'Date: ',
+                                  style: TextStyle(fontSize: 17, color: MyColors.mainColor),
+                                ),
+                                TextSpan(
+                                  text: formattedDate,
+                                  style: TextStyle(fontSize: 17, color: MyColors.blackColor),
+                                ),
+                              ],
+                            ),
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            report.reportDetails,
-                            style: TextStyle(fontSize: 16, color: MyColors.mainColor),
+                          RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'Details: ',
+                                  style: TextStyle(fontSize: 17, color: MyColors.mainColor),
+                                ),
+                                TextSpan(
+                                  text: report.reportDetails,
+                                  style: TextStyle(fontSize: 16, color: MyColors.blackColor),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
-                      ),
+                      )
                     ),
                   ),
                   const SizedBox(height: 16),
